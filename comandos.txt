@@ -1,0 +1,5 @@
+IMPORTACIONES:
+
+PUPPETEER: npm install puppeteer
+
+PARSER: npm install json2csv

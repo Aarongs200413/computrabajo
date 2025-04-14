@@ -34,7 +34,7 @@ const { Parser } = require('json2csv');
     console.log(resultados);
 
     //Convertir a csv:
-    const parser = new Parser(); 
+    const parser = new Parser();
     const csv = parser.parse(resultados);
     fs.writeFileSync('resultados.csv', csv, 'utf8');
     console.log('Se genero csv');
