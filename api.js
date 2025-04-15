@@ -20,11 +20,21 @@ app.get('/ofertas', async (req, res) => {
     const resultados = await page.evaluate(() => {
         const items = Array.from(document.querySelectorAll('.box_offer'));
         return items.map(item => {
-            const titulo = item.querySelector('h2.fs18 a.js-o-link.fc_base')?.innerText.trim() || '';
-            const empresa = item.querySelector('p.fs16 a.fc_base.t_ellipsis')?.innerText.trim() || '';
-            const ubicacion = item.querySelector('p.fs16.fc_base.mt5 span.mr10')?.parentElement?.innerText.trim() || '';
-            const salario = item.querySelector('div.fs13 span.dIB.mr10')?.parentElement?.innerText.trim() || '';
-            return { titulo, empresa, ubicacion, salario };
+            const data = {};
+
+            const titulo = item.querySelector('h2.fs18 a.js-o-link.fc_base')?.innerText.trim();
+            titulo ? data.titulo = titulo : null;
+
+            const empresa = item.querySelector('p.fs16 a.fc_base.t_ellipsis')?.innerText.trim();
+            empresa ? data.empresa = empresa : null;
+
+            const ubicacion = item.querySelector('p.fs16.fc_base.mt5 span.mr10')?.parentElement?.innerText.trim();
+            ubicacion ? data.ubicacion = ubicacion : null;
+
+            const salario = item.querySelector('div.fs13 span.dIB.mr10')?.parentElement?.innerText.trim();
+            salario ? data.salario = salario : null;
+
+            return data;
         });
     });
     // Cerramos el navegador
