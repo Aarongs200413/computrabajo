@@ -7,9 +7,11 @@ const puppeteer = require('puppeteer');
 
     // Esperar al input de búsqueda
     await page.waitForSelector('#prof-cat-search-input');
+    await page.waitForSelector('#place-search-input');
 
     // Escribir la búsqueda
     await page.type('#prof-cat-search-input', 'laravel php');
+    await page.type('#place-search-input','lima');
 
     // Hacer clic en el botón de buscar
     await page.click('#search-button');
