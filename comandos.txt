@@ -3,3 +3,7 @@ IMPORTACIONES:
 PUPPETEER: npm install puppeteer
 
 PARSER: npm install json2csv
+
+NPX PUPPETEER: npx puppeteer browsers install chrome
+
+SI NO TIENE PERMISOS: chmod +x ./node_modules/.bin/puppeteer
