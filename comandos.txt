@@ -7,3 +7,5 @@ PARSER: npm install json2csv
 NPX PUPPETEER: npx puppeteer browsers install chrome
 
 SI NO TIENE PERMISOS: chmod +x ./node_modules/.bin/puppeteer
+
+PLAYWRIGHT: npm install playwright -- SOLO SI VES CHROMIUM, OMITE LO ANTERIOR
