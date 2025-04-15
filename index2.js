@@ -1,17 +1,10 @@
-const express = require('express');
 const { chromium } = require('playwright');
 
-const app = express();
-const PORT = 3000;
-
-// Ruta del API
-app.get('/ofertas', async (req, res) => {
-    const termino = req.query.q || 'atencion';
-    const ubicacion = req.query.ubi || 'lima';
-
+(async () => {
+    // Lanzamos navegador con emulación de navegador real
     const browser = await chromium.launch({
-        headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
+        headless: true, // ✅ Modo sin cabeza
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
 
     const context = await browser.newContext({
@@ -20,55 +13,48 @@ app.get('/ofertas', async (req, res) => {
     });
 
     const page = await context.newPage();
+
     await page.goto('https://pe.computrabajo.com', { waitUntil: 'load' });
 
-    // Espera adicional por JS en modo headless
+    // Esperamos por si tarda en cargar JS en modo headless
     await page.waitForTimeout(5000);
 
-    try {
-        await page.waitForSelector('#prof-cat-search-input', { state: 'visible', timeout: 15000 });
-        await page.waitForSelector('#place-search-input', { state: 'visible', timeout: 15000 });
+    // Esperamos a que aparezcan los campos de búsqueda
+    await page.waitForSelector('#prof-cat-search-input', { state: 'visible', timeout: 15000 });
+    await page.waitForSelector('#place-search-input', { state: 'visible', timeout: 15000 });
 
-        await page.fill('#place-search-input', ubicacion);
-        await page.fill('#prof-cat-search-input', termino);
+    // Escribimos términos
+    await page.fill('#prof-cat-search-input', 'laravel php');
+    await page.fill('#place-search-input', 'lima');
 
-        // Esperamos navegación tras clic
-        await Promise.all([
-            page.waitForNavigation({ waitUntil: 'networkidle' }),
-            page.click('#search-button')
-        ]);
+    // Hacemos clic en el botón de búsqueda
+    await Promise.all([
+        page.waitForNavigation({ waitUntil: 'networkidle' }),
+        page.click('#search-button')
+    ]);
 
-        const resultados = await page.evaluate(() => {
-            const items = Array.from(document.querySelectorAll('.box_offer'));
-            return items.map(item => {
-                const data = {};
+    // Extraemos los resultados
+    const resultados = await page.evaluate(() => {
+        const items = Array.from(document.querySelectorAll('.box_offer'));
+        return items.map(item => {
+            const data = {};
 
-                const titulo = item.querySelector('h2.fs18 a.js-o-link.fc_base')?.innerText.trim();
-                titulo ? data.titulo = titulo : null;
+            const titulo = item.querySelector('h2.fs18 a.js-o-link.fc_base')?.innerText.trim();
+            if (titulo) data.titulo = titulo;
 
-                const empresa = item.querySelector('p.fs16 a.fc_base.t_ellipsis')?.innerText.trim();
-                empresa ? data.empresa = empresa:null;
+            const empresa = item.querySelector('p.fs16 a.fc_base.t_ellipsis')?.innerText.trim();
+            if (empresa) data.empresa = empresa;
 
-                const ubicacion = item.querySelector('p.fs16.fc_base.mt5 span.mr10')?.parentElement?.innerText.trim();
-                ubicacion ? data.ubicacion = ubicacion:null;
+            const ubicacion = item.querySelector('p.fs16.fc_base.mt5 span.mr10')?.parentElement?.innerText.trim();
+            if (ubicacion) data.ubicacion = ubicacion;
 
-                const salario = item.querySelector('div.fs13 span.dIB.mr10')?.parentElement?.innerText.trim();
-                salario ? data.salario = salario:null;
+            const salario = item.querySelector('div.fs13 span.dIB.mr10')?.parentElement?.innerText.trim();
+            if (salario) data.salario = salario;
 
-                return data;
-            });
+            return data;
         });
+    });
 
-        res.json({ resultados });
-    } catch (error) {
-        console.error('Error al obtener los datos:', error);
-        res.status(500).json({ error: 'No se pudieron obtener resultados' });
-    } finally {
-        await browser.close();
-    }
-});
-
-// Iniciar el servidor
-app.listen(PORT, () => {
-    console.log(`Servidor listo en http://localhost:${PORT}`);
-});
+    console.log(resultados);
+    await browser.close();
+})();
