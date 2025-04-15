@@ -7,12 +7,16 @@ const PORT = 3000;
 // Ruteamos el API
 app.get('/ofertas', async (req, res) => {
     const termino = req.query.q || 'atencion';
+    const ubicacion = req.query.ubi || 'lima';
 
     const browser = await puppeteer.launch({ headless: false });
     const page = await browser.newPage();
     await page.goto('https://pe.computrabajo.com', { waitUntil: 'networkidle2' });
 
     await page.waitForSelector('#prof-cat-search-input');
+    await page.waitForSelector('#place-search-input');
+
+    await page.type('#place-search-input', ubicacion);
     await page.type('#prof-cat-search-input', termino);
     await page.click('#search-button');
     await page.waitForNavigation({ waitUntil: 'networkidle2' });
